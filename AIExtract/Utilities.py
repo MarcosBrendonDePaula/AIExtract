@@ -1,16 +1,16 @@
 import openai, json
 class Extractor:
-    def __init__(self, lang="Portugues", layout = None , TNO = False) -> None:
+    def __init__(self, lang="Portugues", layout = None , numeric = False) -> None:
         self.lang = lang
         self.layout = layout
-        self.TNO = TNO
+        self.numeric = numeric
 
     def extract(self, input, **kwargs)->dict:
         regras = [
             {"role": "system", "content": f"vou informar uma mensagem e você deve extrair as informaçoes e as mostrar em um json sem explicação nenhuma!, normalize as chaves"},
             {"role": "system", "content": f"As saidas devem estar na lingua {self.lang}"},
         ]
-        if(self.TNO):
+        if(self.numeric):
             regras.append({"role": "system", "content": f"se possivel trocar textos para valores numericos"})
         if not self.layout == None:
             regras.append({"role": "system", "content": f"use essa estrutura {json.dumps(self.layout)} json como modelo, valores faltantes prencha com \"\", corrija os campos cujo as informaçoes estão colocadas"})
@@ -23,7 +23,6 @@ class Extractor:
             messages = regras
         )
         try:
-            print(completion)
             return json.loads(completion.choices[0].message.content)
         except:
             return {}
@@ -32,10 +31,11 @@ class IF():
     def __init__(self,) -> None:
         self.rules = []
         self.rules.append({"role": "system", "content": f"vamos fazer uma simulação de if vou informar uma mensagem e você deve dar o retorno correto sem explicação nenhuma!, caso a regra não exista mostre 'undefined', vou informar as regras"})
+    
     def addRule(self ,condition="", response=""):
         self.rules.append({
             "role": "system",
-            "content": f"se eu falar {condition} diga {response}"
+            "content": f"se {condition} diga {response}"
         })
     
     def input(self, text)->str:
